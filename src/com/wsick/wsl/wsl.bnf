@@ -1,0 +1,59 @@
+{
+  parserClass="com.wsick.wsl.parser.WslParser"
+  parserUtilClass="com.wsick.wsl.parser.WslParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Wsl"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.wsick.wsl.psi"
+  psiImplPackage="com.wsick.wsl.psi.impl"
+  psiImplUtilClass="com.wsick.wsl.psi.impl.WslPsiImplUtil"
+
+  elementTypeHolderClass="com.wsick.wsl.psi.WslTypes"
+  elementTypeClass="com.wsick.wsl.psi.WslElementType"
+  tokenTypeClass="com.wsick.wsl.psi.WslTokenType"
+
+  tokens = [
+    LATTR  = '['
+    RATTR  = ']'
+    LCONT  = '{'
+    RCONT  = '}'
+    LEXT   = '{{'
+    REXT   = '}}'
+    EQUALS = '='
+    EVENT  = '@'
+    ALIAS  = ':'
+    DOT    = '.'
+
+    whitespace = 'regexp:\s+'
+
+    word   = 'regexp:\p{Alpha}(\w|-)*'
+    string = "regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+
+    int    = 'regexp:0|([1-9]\d*)'
+    float  = 'regexp:(((\d+\.\d*)|(\d*\.\d+))([eE][+-]?\d+)?)|(\d+([eE][+-]?\d+))'
+    hex    = 'regexp:(0x|0X)[0-9A-Fa-f]+'
+    oct    = 'regexp:0[0-7]+'
+  ]
+}
+
+File          ::= (object)*
+object        ::= identifier [ attr_block ] [ content_block ]
+
+attr_block    ::= [ whitespace ] LATTR (attr)* [ whitespace ] RATTR
+attr          ::= [ whitespace ] attr_key [ whitespace ] (attr_set | content_block)
+attr_set      ::= '=' [ whitespace ] value
+attr_key      ::= [ EVENT ] identifier
+
+content_block ::= [ whitespace ] LCONT (content)* [ whitespace ] RCONT
+content       ::= [ whitespace ] value
+
+identifier    ::= [ ns_alias ] [ locator ] word
+value         ::= object | number | string | extension
+
+ns_alias      ::= [ word ] ALIAS
+locator       ::= [ word ] DOT
+extension     ::= LEXT REXT
+
+number        ::= int | float | hex | oct
